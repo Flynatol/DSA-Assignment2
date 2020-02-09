@@ -21,7 +21,7 @@ public class DroneTest
 {
 	private static final Logger logger        = Logger.getLogger(DroneTest.class);
 
-	private static int			numChambers		= 5 ;
+	private static int			numChambers		= 20 ;
 	private static double		avgDoorsPerChamber = 2.3;
 	
 	private static Maze         baseMaze      = new Maze(numChambers, avgDoorsPerChamber, 999);

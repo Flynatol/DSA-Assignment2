@@ -79,34 +79,22 @@ public class Drone implements DroneInterface
 	public Portal searchStep()
 	{
 		for (int i = 0; i < maze.getNumDoors(); i++) {
-
-			Portal testPortal = new Portal(maze.getCurrentChamber(), i);
-
-			if (!visited.contains(testPortal)) {
-				return travelAdd(i, true);
-			}
-
+			if (!visited.contains(new Portal(maze.getCurrentChamber(), i))) return travelAdd(i, true);
 	 	}
 
-		if (visitStack.isEmpty()){
-			return null;
-		}
+		if (visitStack.isEmpty()) return null;
 
 		return travelAdd(visitStack.pop().getDoor(), false);
-
 	}
 
 	private Portal travelAdd(int i, boolean onStack){
 		Portal forward = new Portal(maze.getCurrentChamber(), i);
 		Portal backward = maze.traverse(i);
 
-		if (onStack) {
-			visitStack.push(backward);
-		}
+		if (onStack) visitStack.push(backward);
 
 		visitQueue.add(forward);
 		visitQueue.add(backward);
-
 
 		visited.add(forward);
 		visited.add(backward);
@@ -131,6 +119,8 @@ public class Drone implements DroneInterface
 	{
 		Deque<Portal> tempStack = new ArrayDeque<>();
 		ArrayList<Portal> output = new ArrayList<>();
+		int roomOnTrack = 0;
+		Boolean inLoop = false;
 		tempStack.addAll(visitStack);
 		Portal tempPortal;
 
@@ -148,8 +138,14 @@ public class Drone implements DroneInterface
 			if (tempPortal.getChamber() == 0) {
 				break;
 			}
-			if (tempPortal.equals(map.get(tempPortal.getChamber()))) {
-				logger.log(Level.ALL, tempPortal.toString());
+
+			if (inLoop && tempPortal.getChamber() == roomOnTrack) {
+				inLoop = false;
+			}
+			if (!tempPortal.equals(map.get(tempPortal.getChamber())) && !inLoop) {
+				inLoop = true;
+				roomOnTrack = tempPortal.getChamber();
+			} else if (tempPortal.equals(map.get(tempPortal.getChamber())) && !inLoop) {
 				output.add(tempPortal);
 			}
 		}

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -82,8 +83,41 @@ public class Drone implements DroneInterface
 	@Override
 	public Portal searchStep()
 	{
-		/* WRITE YOUR CODE HERE */
-		return null;
+		for (int i = 0; i < maze.getNumDoors(); i++) {
+			//logger.log(Level.ALL, maze.getNumDoors());
+
+			//Door to this chamber from ???
+			Portal testPortal = new Portal(maze.getCurrentChamber(), i);
+
+			if (!visited.contains(testPortal)) {
+				//logger.log(Level.ALL, "visiting: " + testPortal.getChamber());
+
+
+				Portal destination = maze.traverse(i);
+
+				visitStack.push(destination);
+
+				visitQueue.add(testPortal);
+				visitQueue.add(destination);
+
+
+				visited.add(testPortal);
+				visited.add(destination);
+
+				return destination;
+			}
+
+
+	 	}
+
+		if (visitStack.isEmpty()){
+			return null;
+		}
+
+		return maze.traverse(visitStack.pop().getDoor());
+
+
+
 	}
 
 	/* 
@@ -92,8 +126,7 @@ public class Drone implements DroneInterface
 	@Override
 	public Portal[] getVisitOrder()
 	{
-		/* WRITE YOUR CODE HERE */
-		return null;
+		return visitQueue.toArray(new Portal[0]);
 	}
 
 	/*

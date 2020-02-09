@@ -1,11 +1,6 @@
 package dsa_assignment2;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -84,29 +79,12 @@ public class Drone implements DroneInterface
 	public Portal searchStep()
 	{
 		for (int i = 0; i < maze.getNumDoors(); i++) {
-			//logger.log(Level.ALL, maze.getNumDoors());
 
-			//Door to this chamber from ???
 			Portal testPortal = new Portal(maze.getCurrentChamber(), i);
 
 			if (!visited.contains(testPortal)) {
-				//logger.log(Level.ALL, "visiting: " + testPortal.getChamber());
-
-
-				Portal destination = maze.traverse(i);
-
-				visitStack.push(destination);
-
-				visitQueue.add(testPortal);
-				visitQueue.add(destination);
-
-
-				visited.add(testPortal);
-				visited.add(destination);
-
-				return destination;
+				return travelAdd(i, true);
 			}
-
 
 	 	}
 
@@ -114,10 +92,26 @@ public class Drone implements DroneInterface
 			return null;
 		}
 
-		return maze.traverse(visitStack.pop().getDoor());
+		return travelAdd(visitStack.pop().getDoor(), false);
+
+	}
+
+	private Portal travelAdd(int i, boolean onStack){
+		Portal forward = new Portal(maze.getCurrentChamber(), i);
+		Portal backward = maze.traverse(i);
+
+		if (onStack) {
+			visitStack.push(backward);
+		}
+
+		visitQueue.add(forward);
+		visitQueue.add(backward);
 
 
+		visited.add(forward);
+		visited.add(backward);
 
+		return backward;
 	}
 
 	/* 
@@ -135,8 +129,32 @@ public class Drone implements DroneInterface
 	@Override
 	public Portal[] findPathBack()
 	{
-		/* WRITE YOUR CODE HERE */
-		return null;
+		Deque<Portal> tempStack = new ArrayDeque<>();
+		ArrayList<Portal> output = new ArrayList<>();
+		tempStack.addAll(visitStack);
+		Portal tempPortal;
+
+		HashMap<Integer, Portal> map = new HashMap<Integer, Portal>();
+
+		while (!tempStack.isEmpty()) {
+			tempPortal = tempStack.pop();
+			map.put(tempPortal.getChamber(), tempPortal);
+		}
+
+		tempStack.addAll(visitStack);
+
+		while (!tempStack.isEmpty()) {
+			tempPortal = tempStack.pop();
+			if (tempPortal.getChamber() == 0) {
+				break;
+			}
+			if (tempPortal.equals(map.get(tempPortal.getChamber()))) {
+				logger.log(Level.ALL, tempPortal.toString());
+				output.add(tempPortal);
+			}
+		}
+
+		return output.toArray(new Portal[0]);
 	}
 
 }

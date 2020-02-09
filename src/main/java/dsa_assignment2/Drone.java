@@ -128,24 +128,26 @@ public class Drone implements DroneInterface
 
 		while (!tempStack.isEmpty()) {
 			tempPortal = tempStack.pop();
+			if (tempPortal.getChamber() == 0) break;
 			map.put(tempPortal.getChamber(), tempPortal);
 		}
 
+		tempStack.clear();
 		tempStack.addAll(visitStack);
 
 		while (!tempStack.isEmpty()) {
 			tempPortal = tempStack.pop();
-			if (tempPortal.getChamber() == 0) {
-				break;
-			}
+
+
 
 			if (inLoop && tempPortal.getChamber() == roomOnTrack) {
 				inLoop = false;
 			}
-			if (!tempPortal.equals(map.get(tempPortal.getChamber())) && !inLoop) {
+			if (!tempPortal.equals(map.get(tempPortal.getChamber())) && !inLoop && tempPortal.getChamber() != 0) {
 				inLoop = true;
 				roomOnTrack = tempPortal.getChamber();
 			} else if (tempPortal.equals(map.get(tempPortal.getChamber())) && !inLoop) {
+				if (tempPortal.getChamber() == 0) break;
 				output.add(tempPortal);
 			}
 		}

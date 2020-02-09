@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -21,14 +22,14 @@ public class DroneTest
 {
 	private static final Logger logger        = Logger.getLogger(DroneTest.class);
 
-	private static int			numChambers		= 20 ;
-	private static double		avgDoorsPerChamber = 2.3;
+	private static int			numChambers		= 500 ;
+	private static double		avgDoorsPerChamber = 10;
 	
 	private static Maze         baseMaze      = new Maze(numChambers, avgDoorsPerChamber, 999);
 
 
 	@Rule
-	public Timeout              globalTimeout = new Timeout(2000, TimeUnit.MILLISECONDS);
+	public Timeout              globalTimeout = new Timeout(200000, TimeUnit.MILLISECONDS);
 
 	/**
 	 * Not a test. This is just to log the maze used
@@ -252,6 +253,7 @@ public class DroneTest
 			mazeCopy = new Maze(maze, false); // Don't reset the current chamber
 			for (int i = 0; i < pathBack.length; i++)
 			{
+				logger.log(Level.DEBUG, "in room: " + mazeCopy.getCurrentChamber() + " Taking path: " + pathBack[i].getDoor());
 				Portal srcPortal = pathBack[i];
 				assertEquals("Pathback: not in correct chamber", mazeCopy.getCurrentChamber(), srcPortal.getChamber());
 				assertNotNull("Result of a traverse step in pathBack", mazeCopy.traverse(srcPortal.getDoor()));
@@ -279,16 +281,21 @@ public class DroneTest
 			pathBack = drone.findPathBack();
 			mazeCopy = new Maze(maze, false); // Don't reset the current chamber
 			chamberSet.clear();
+
+			logger.log(Level.DEBUG, "In room: " + mazeCopy.getCurrentChamber() + " Pathback length: " + pathBack.length);
+
 			for (int i = 0; i < pathBack.length; i++)
 			{
 				Portal srcPortal = pathBack[i];
+				logger.log(Level.DEBUG, "in room: " + mazeCopy.getCurrentChamber() + " Taking path: " + pathBack[i].getDoor());
 				assertEquals("Pathback: not in correct chamber", mazeCopy.getCurrentChamber(), srcPortal.getChamber());
 				assertNotNull("Result of a traverse step in pathBack", mazeCopy.traverse(srcPortal.getDoor()));
+
 
 				assertTrue("Second time visiting this chamber while following path back", chamberSet.add(srcPortal.getChamber()));
 			}
 			assertTrue("Already visited chamber 0 before finished following back path", chamberSet.add(0));
-			
+
 			assertEquals("Following the full path back must end in chamber 0", 0, mazeCopy.getCurrentChamber());
 		}
 		assertNotEquals("A search of a Maze with 2 or more chambers must take more than 0 steps", 0, numSteps);
